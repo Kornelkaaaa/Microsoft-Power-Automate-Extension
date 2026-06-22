@@ -1,0 +1,9 @@
+node_modules/
+*.log
+.DS_Store
+Thumbs.db
+
+# Build output and generated data are committed so the extension is loadable
+# without a build step. Uncomment to treat them as artifacts instead:
+# dist/
+# public/catalog.json

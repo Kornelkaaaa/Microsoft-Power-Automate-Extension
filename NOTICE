@@ -1,0 +1,52 @@
+Flow Finder — attribution notice
+=================================
+
+This project is UNOFFICIAL and is NOT affiliated with, endorsed by, or sponsored
+by Microsoft Corporation.
+
+Connector data
+--------------
+The connector catalog bundled with this extension (public/catalog.json) is
+derived from two public Microsoft sources:
+
+1. THIRD-PARTY connectors:
+       microsoft/PowerPlatformConnectors
+       https://github.com/microsoft/PowerPlatformConnectors
+   Licensing (per its own LICENSE file):
+     * Source code under the MIT License.
+     * Documentation and content under the Creative Commons Attribution 4.0
+       International License (CC-BY-4.0). https://creativecommons.org/licenses/by/4.0/
+   Operation metadata is extracted from the apiDefinition.swagger.json and
+   apiProperties.json files in that repository.
+
+2. FIRST-PARTY connectors (Dataverse, SharePoint, Teams, Outlook, Planner,
+   Forms, and others):
+       Microsoft Learn connector reference
+       https://learn.microsoft.com/en-us/connectors/connector-reference/
+   Microsoft technical documentation, licensed under CC-BY-4.0 per the
+   MicrosoftDocs legal notices
+   (https://github.com/MicrosoftDocs/microsoft-docs#legal-notices).
+   Operation names, Operation IDs, and descriptions are parsed from the rendered
+   per-connector reference pages.
+
+Attribution, as required by CC-BY-4.0:
+  "Connector metadata © Microsoft and contributors to the
+   microsoft/PowerPlatformConnectors project and the Microsoft Learn connector
+   reference, used under CC-BY-4.0. Changes were made: the data was parsed,
+   flattened, de-duplicated, tagged, and reformatted into a single search catalog."
+
+A small set of built-in operations with no connector reference page (HTTP,
+Request) in scripts/firstparty-extras.json was authored by this project's
+contributors as a convenience supplement.
+
+Trademarks
+----------
+"Microsoft", "Power Automate", "Power Platform", "SharePoint", "Microsoft
+Teams", "Dataverse", "Office 365", and related names, logos, and brands are
+trademarks of Microsoft Corporation. Their use here is nominative (to identify
+the connectors being cataloged) and does not imply endorsement.
+
+Third-party software
+--------------------
+Fuse.js (https://fusejs.io) — MIT License, Copyright (c) 2017 Kiro Risk.
+Bundled at src/vendor/fuse.mjs.

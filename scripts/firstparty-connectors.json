@@ -1,0 +1,17 @@
+{
+  "_comment": "First-party (and other) connectors to pull in full from the public Microsoft Learn connector reference (https://learn.microsoft.com/en-us/connectors/<slug>/). These are not in the microsoft/PowerPlatformConnectors GitHub repo, so build-firstparty.js scrapes their complete action/trigger lists from the rendered docs. Add a connector by appending its slug, display name, and tier. Set tier to Standard or Premium.",
+  "connectors": [
+    { "slug": "commondataserviceforapps", "connector": "Microsoft Dataverse", "tier": "Premium" },
+    { "slug": "sharepointonline", "connector": "SharePoint", "tier": "Standard" },
+    { "slug": "office365", "connector": "Office 365 Outlook", "tier": "Standard" },
+    { "slug": "teams", "connector": "Microsoft Teams", "tier": "Standard" },
+    { "slug": "excelonlinebusiness", "connector": "Excel Online (Business)", "tier": "Standard" },
+    { "slug": "onedriveforbusiness", "connector": "OneDrive for Business", "tier": "Standard" },
+    { "slug": "office365users", "connector": "Office 365 Users", "tier": "Standard" },
+    { "slug": "approvals", "connector": "Approvals", "tier": "Standard" },
+    { "slug": "planner", "connector": "Microsoft Planner", "tier": "Standard" },
+    { "slug": "onenote", "connector": "OneNote (Business)", "tier": "Standard" },
+    { "slug": "shifts", "connector": "Shifts for Microsoft Teams", "tier": "Standard" },
+    { "slug": "microsoftforms", "connector": "Microsoft Forms", "tier": "Standard" }
+  ]
+}

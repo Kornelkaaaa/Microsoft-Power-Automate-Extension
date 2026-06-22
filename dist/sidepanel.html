@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flow Finder</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <svg class="brand-mark" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M5 4h14a1 1 0 0 1 .78 1.63L14 12.5V19a1 1 0 0 1-1.45.9l-2-1A1 1 0 0 1 10 18v-5.5L4.22 5.63A1 1 0 0 1 5 4Z" />
+      </svg>
+      <div class="brand-text">
+        <h1>Flow Finder</h1>
+        <p class="brand-sub">Power Automate connector catalog</p>
+      </div>
+    </div>
+
+    <div class="search-wrap">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" />
+        <line x1="16.5" y1="16.5" x2="21" y2="21" />
+      </svg>
+      <input
+        id="search"
+        type="search"
+        autocomplete="off"
+        spellcheck="false"
+        placeholder="Describe what your flow should do…"
+        aria-label="Search connectors, actions, and triggers"
+      />
+      <kbd class="search-hint" id="search-hint">/</kbd>
+    </div>
+
+    <div class="filters" role="group" aria-label="Filters">
+      <div class="seg" role="group" aria-label="Type">
+        <button class="seg-btn is-active" data-type-toggle="action" aria-pressed="true">Actions</button>
+        <button class="seg-btn is-active" data-type-toggle="trigger" aria-pressed="true">Triggers</button>
+      </div>
+      <div class="seg" role="group" aria-label="Tier">
+        <button class="seg-btn is-active" data-tier-toggle="Standard" aria-pressed="true">Standard</button>
+        <button class="seg-btn is-active" data-tier-toggle="Premium" aria-pressed="true">Premium</button>
+      </div>
+      <select id="connector-filter" class="connector-select" aria-label="Filter by connector">
+        <option value="">All connectors</option>
+      </select>
+    </div>
+
+    <div class="result-bar">
+      <span id="result-count" class="result-count">Loading…</span>
+      <button id="clear-filters" class="link-btn" hidden>Reset filters</button>
+    </div>
+  </header>
+
+  <main id="results" class="results" tabindex="-1" aria-live="polite"></main>
+
+  <template id="result-template">
+    <article class="card" tabindex="0" role="button" aria-expanded="false">
+      <div class="card-head">
+        <div class="card-titles">
+          <span class="card-connector"></span>
+          <h2 class="card-name"></h2>
+        </div>
+        <div class="card-badges">
+          <span class="badge badge-type"></span>
+          <span class="badge badge-tier"></span>
+        </div>
+      </div>
+      <p class="card-desc"></p>
+      <div class="card-meta">
+        <code class="card-opid"></code>
+      </div>
+    </article>
+  </template>
+
+  <footer class="app-footer">
+    <span>Data: <a href="https://github.com/microsoft/PowerPlatformConnectors" target="_blank" rel="noreferrer">microsoft/PowerPlatformConnectors</a> · CC-BY-4.0</span>
+    <span class="footer-note">Unofficial · not affiliated with Microsoft</span>
+  </footer>
+
+  <script type="module" src="sidepanel.js"></script>
+</body>
+</html>

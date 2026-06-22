@@ -1,0 +1,65 @@
+{
+  "_comment": "Built-in operations that have no Microsoft Learn /connectors/ page (HTTP, Request, etc.). build-firstparty.js appends these to the generated curated-first-party.json so they appear in the catalog. Keep this list small and accurate.",
+  "operations": [
+    {
+      "connector": "HTTP",
+      "connectorDescription": "Make HTTP or HTTPS requests to any reachable endpoint. A built-in action useful for calling REST APIs and webhooks from a flow.",
+      "tier": "Premium",
+      "type": "action",
+      "name": "HTTP",
+      "operationId": "Http",
+      "description": "Sends an HTTP request to the specified URL with a method, headers, and body, and returns the response.",
+      "inputs": ["Method*", "URI*", "Headers", "Queries", "Body", "Authentication"],
+      "docUrl": "https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http",
+      "tags": ["http", "https", "rest", "api", "call", "webhook", "request", "get", "post"]
+    },
+    {
+      "connector": "HTTP",
+      "connectorDescription": "Make HTTP or HTTPS requests to any reachable endpoint. A built-in action useful for calling REST APIs and webhooks from a flow.",
+      "tier": "Premium",
+      "type": "action",
+      "name": "HTTP + Swagger",
+      "operationId": "HttpWithSwagger",
+      "description": "Calls an HTTP endpoint described by an OpenAPI (Swagger) definition, with a guided parameter experience.",
+      "inputs": ["Swagger endpoint*", "Method*", "Parameters"],
+      "docUrl": "https://learn.microsoft.com/en-us/azure/connectors/connectors-native-http-swagger",
+      "tags": ["http", "swagger", "openapi", "rest", "api", "call"]
+    },
+    {
+      "connector": "HTTP",
+      "connectorDescription": "Make HTTP or HTTPS requests to any reachable endpoint. A built-in action useful for calling REST APIs and webhooks from a flow.",
+      "tier": "Premium",
+      "type": "action",
+      "name": "HTTP Webhook",
+      "operationId": "HttpWebhook",
+      "description": "Subscribes to and waits on an HTTP webhook callback, then continues the flow when called back.",
+      "inputs": ["Subscribe Method*", "Subscribe URI*", "Unsubscribe Method", "Unsubscribe URI"],
+      "docUrl": "https://learn.microsoft.com/en-us/azure/connectors/connectors-native-webhook",
+      "tags": ["http", "webhook", "callback", "subscribe", "wait", "async"]
+    },
+    {
+      "connector": "Request",
+      "connectorDescription": "Built-in triggers and responses for calling a flow over HTTP, including manual run and a When-an-HTTP-request-is-received endpoint.",
+      "tier": "Standard",
+      "type": "trigger",
+      "name": "When an HTTP request is received",
+      "operationId": "manual",
+      "description": "Triggers the flow when an HTTP request is received at a generated endpoint URL.",
+      "inputs": ["Request Body JSON Schema", "Method", "Relative path"],
+      "docUrl": "https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres",
+      "tags": ["request", "http", "webhook", "endpoint", "trigger", "manual", "rest"]
+    },
+    {
+      "connector": "Request",
+      "connectorDescription": "Built-in triggers and responses for calling a flow over HTTP, including manual run and a When-an-HTTP-request-is-received endpoint.",
+      "tier": "Standard",
+      "type": "action",
+      "name": "Response",
+      "operationId": "Response",
+      "description": "Returns an HTTP response with a status code, headers, and body to the caller of the flow.",
+      "inputs": ["Status Code*", "Headers", "Body"],
+      "docUrl": "https://learn.microsoft.com/en-us/azure/connectors/connectors-native-reqres",
+      "tags": ["request", "response", "http", "reply", "status", "rest"]
+    }
+  ]
+}
