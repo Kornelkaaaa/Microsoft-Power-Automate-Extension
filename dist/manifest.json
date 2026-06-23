@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Flow Finder — Power Automate connector catalog",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Searchable catalog of Power Automate / Power Platform connectors, actions, and triggers. Find the block that solves your use case.",
   "minimum_chrome_version": "114",
   "permissions": ["sidePanel"],

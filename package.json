@@ -1,6 +1,6 @@
 {
   "name": "flow-finder",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Manifest V3 Chrome extension: a searchable side-panel catalog of Power Automate / Power Platform connectors, actions, and triggers.",
   "private": true,
   "type": "commonjs",
