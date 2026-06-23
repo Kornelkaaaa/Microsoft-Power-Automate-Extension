@@ -253,8 +253,36 @@ body {
 }
 .card.is-expanded .card-desc { -webkit-line-clamp: unset; overflow: visible; }
 
-.card-meta { margin-top: 7px; display: none; }
+.card-meta { margin-top: 8px; display: none; }
 .card.is-expanded .card-meta { display: block; }
+
+.card-inputs { margin-bottom: 8px; }
+.inputs-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 4px;
+}
+.input-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.input-pill {
+  font-size: 11px;
+  color: var(--text-dim);
+  background: var(--bg-sunk);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.input-pill.is-required {
+  color: var(--text);
+  border-color: var(--border-strong);
+  font-weight: 500;
+}
+.input-pill.is-required::after { content: " *"; color: var(--accent); }
+
+.card-meta-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .card-opid {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 11px;
@@ -264,7 +292,20 @@ body {
   border-radius: 5px;
   padding: 2px 6px;
   word-break: break-all;
+  min-width: 0;
 }
+.card-doclink {
+  flex: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+  padding: 2px 4px;
+  border-radius: 5px;
+}
+.card-doclink:hover { background: var(--accent-bg); text-decoration: underline; }
+.card-doclink:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
 
 mark {
   background: var(--mark);

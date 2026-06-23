@@ -139,9 +139,19 @@ node scripts/build-firstparty.js --keep-deprecated # include deprecated/MCP-serv
   "name": "When an item is created",        // operation summary
   "operationId": "GetOnNewItems",
   "description": "Triggers a flow when a new item is created in a SharePoint list.",
+  "inputs": ["Site Address*", "List Name*"], // operation parameters; "*" = required
+  "docUrl": "https://learn.microsoft.com/en-us/connectors/sharepointonline/#when-an-item-is-created",
   "tags": ["sharepoint", "item", "created", "list", "new", "trigger"]
 }
 ```
+
+- **`inputs`** is a compact, ordered list of an operation's parameters (a trailing
+  `*` marks a required one). Third-party inputs come from the swagger `parameters`
+  array; first-party inputs are parsed from each operation's **Parameters** table on
+  Microsoft Learn. The side panel renders these as pills when a card is expanded.
+- **`docUrl`** deep-links to the operation's documentation — the Microsoft Learn
+  connector reference anchor for first-party connectors, the GitHub connector folder
+  for third-party ones. Shown as a "View docs" link on each card.
 
 ### Notes on the data
 

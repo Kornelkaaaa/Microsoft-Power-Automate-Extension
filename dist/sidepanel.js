@@ -242,6 +242,38 @@ function renderCard(entry, index, tokens) {
 
   node.querySelector('.card-opid').textContent = entry.operationId;
 
+  // Inputs (shown when expanded). Required params carry a trailing "*".
+  const inputsEl = node.querySelector('.card-inputs');
+  if (Array.isArray(entry.inputs) && entry.inputs.length) {
+    const label = document.createElement('span');
+    label.className = 'inputs-label';
+    label.textContent = 'Inputs';
+    inputsEl.appendChild(label);
+    const list = document.createElement('div');
+    list.className = 'input-chips';
+    for (const raw of entry.inputs) {
+      const required = raw.endsWith('*');
+      const pill = document.createElement('span');
+      pill.className = 'input-pill' + (required ? ' is-required' : '');
+      pill.textContent = required ? raw.slice(0, -1) : raw;
+      if (required) pill.title = 'Required';
+      list.appendChild(pill);
+    }
+    inputsEl.appendChild(list);
+  } else {
+    inputsEl.remove();
+  }
+
+  // Deep link to the operation's documentation.
+  const doc = node.querySelector('.card-doclink');
+  if (entry.docUrl) {
+    doc.href = entry.docUrl;
+    doc.hidden = false;
+    doc.addEventListener('click', (e) => e.stopPropagation()); // don't toggle expand
+  } else {
+    doc.remove();
+  }
+
   node.addEventListener('click', () => toggleExpand(node));
   node.addEventListener('focus', () => setActive(index, false));
   return node;
