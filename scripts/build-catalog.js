@@ -22,6 +22,7 @@
  *   node scripts/build-catalog.js --limit 80      # cap connectors per folder
  *   node scripts/build-catalog.js --no-independent # certified only
  *   node scripts/build-catalog.js --no-curated    # skip the curated first-party supplement
+ *   node scripts/build-catalog.js --no-copilot    # skip the native Copilot Studio building blocks
  *   node scripts/build-catalog.js --branch dev    # override branch (default: repo default)
  */
 
@@ -38,6 +39,15 @@ const UA = 'flow-finder-catalog-builder';
 const OUT_DIR = path.join(__dirname, '..', 'public');
 const OUT_FILE = path.join(OUT_DIR, 'catalog.json');
 const CURATED_FILE = path.join(__dirname, 'curated-first-party.json');
+const COPILOT_FILE = path.join(__dirname, 'copilot-studio-blocks.json');
+
+// Docs base for native Copilot Studio building blocks (docSlug -> docUrl).
+const COPILOT_DOCS = 'https://learn.microsoft.com/microsoft-copilot-studio';
+
+// Which Power Platform products an entry can be used in. Connectors are usable
+// in both Power Automate flows and Copilot Studio agents (as tools/agent flows),
+// so they default to both; native Copilot Studio blocks are Copilot-Studio-only.
+const BOTH_PRODUCTS = ['Power Automate', 'Copilot Studio'];
 
 // ---------------------------------------------------------------------------
 // CLI args
@@ -48,6 +58,7 @@ function parseArgs(argv) {
     limit: 120,        // per-folder cap unless --full
     independent: true,
     curated: true,
+    copilot: true,     // merge native Copilot Studio building blocks
     branch: null,      // resolved from repo default when null
     delayMs: 60,       // polite delay between raw fetches
   };
@@ -56,6 +67,7 @@ function parseArgs(argv) {
     if (a === '--full') args.full = true;
     else if (a === '--no-independent') args.independent = false;
     else if (a === '--no-curated') args.curated = false;
+    else if (a === '--no-copilot') args.copilot = false;
     else if (a === '--limit') args.limit = parseInt(argv[++i], 10);
     else if (a === '--branch') args.branch = argv[++i];
     else if (a === '--delay') args.delayMs = parseInt(argv[++i], 10);
@@ -298,9 +310,40 @@ async function main() {
     }
   }
 
+  // Native Copilot Studio building blocks: the things that are NOT connectors
+  // (authoring-canvas nodes, topic triggers, system topics, knowledge sources,
+  // tools). Marked Copilot-Studio-only so the product toggle can scope them.
+  if (args.copilot && fs.existsSync(COPILOT_FILE)) {
+    try {
+      const cs = JSON.parse(fs.readFileSync(COPILOT_FILE, 'utf8'));
+      const blocks = Array.isArray(cs.blocks) ? cs.blocks : [];
+      const connectorDescription = cs.connectorDescription || '';
+      for (const e of blocks) {
+        // docSlug is the Microsoft Learn page under /microsoft-copilot-studio/.
+        if (e.docSlug && !e.docUrl) e.docUrl = `${COPILOT_DOCS}/${e.docSlug}`;
+        delete e.docSlug;
+        if (!e.connectorDescription) e.connectorDescription = connectorDescription;
+        e.products = ['Copilot Studio'];
+        const auto = buildTags(e.name, e.description, e.connector);
+        const provided = Array.isArray(e.tags) ? e.tags : [];
+        e.tags = [...new Set([...provided, ...auto])].slice(0, 28);
+      }
+      catalog.push(...blocks);
+      process.stderr.write(`\nMerged ${blocks.length} Copilot Studio building blocks\n`);
+    } catch (err) {
+      process.stderr.write(`Could not read Copilot Studio blocks: ${err.message}\n`);
+    }
+  }
+
   if (!catalog.length) {
     process.stderr.write('\nNo entries produced. Aborting without overwriting catalog.json.\n');
     process.exit(1);
+  }
+
+  // Tag product availability: any entry that didn't declare its own `products`
+  // is a connector/flow operation, usable in both Power Automate and Copilot Studio.
+  for (const e of catalog) {
+    if (!Array.isArray(e.products) || !e.products.length) e.products = BOTH_PRODUCTS.slice();
   }
 
   // De-duplicate on connector + operationId + type.
@@ -323,10 +366,12 @@ async function main() {
 
   const connectors = new Set(deduped.map((e) => e.connector));
   const triggers = deduped.filter((e) => e.type === 'trigger').length;
+  const copilotOnly = deduped.filter((e) => e.products.length === 1 && e.products[0] === 'Copilot Studio').length;
   process.stderr.write(
     `\n✔ Wrote ${OUT_FILE}\n` +
     `  ${deduped.length} entries across ${connectors.size} connectors\n` +
-    `  ${triggers} triggers / ${deduped.length - triggers} actions\n`,
+    `  ${triggers} triggers / ${deduped.length - triggers} actions\n` +
+    `  ${copilotOnly} native Copilot Studio blocks\n`,
   );
 }
 

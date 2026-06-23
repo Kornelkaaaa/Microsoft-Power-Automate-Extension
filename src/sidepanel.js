@@ -16,12 +16,21 @@ const state = {
   catalog: [],
   fuse: null,
   query: '',
+  product: 'Power Automate', // 'Power Automate' | 'Copilot Studio'
   types: new Set(['action', 'trigger']),
   tiers: new Set(['Standard', 'Premium', 'unknown']),
   connector: '',
   results: [],
   activeIndex: -1,
 };
+
+// An entry belongs to a product when its products[] contains it. Connectors are
+// in both; native Copilot Studio blocks are Copilot-Studio-only. Older catalogs
+// without a products[] field are treated as Power Automate.
+function inProduct(e, product) {
+  const products = Array.isArray(e.products) ? e.products : ['Power Automate'];
+  return products.includes(product);
+}
 
 // --------------------------------------------------------------------------
 // Load
@@ -59,9 +68,21 @@ async function load() {
   run();
 }
 
+// Rebuild the connector dropdown for the active product. Connectors not present
+// in the current product are dropped; if the active selection vanishes, it clears.
 function populateConnectors() {
-  const names = [...new Set(state.catalog.map((e) => e.connector))].sort((a, b) =>
-    a.localeCompare(b));
+  const names = [...new Set(
+    state.catalog.filter((e) => inProduct(e, state.product)).map((e) => e.connector),
+  )].sort((a, b) => a.localeCompare(b));
+
+  if (state.connector && !names.includes(state.connector)) state.connector = '';
+
+  els.connectorFilter.replaceChildren();
+  const all = document.createElement('option');
+  all.value = '';
+  all.textContent = 'All connectors';
+  els.connectorFilter.appendChild(all);
+
   const frag = document.createDocumentFragment();
   for (const n of names) {
     const opt = document.createElement('option');
@@ -70,6 +91,7 @@ function populateConnectors() {
     frag.appendChild(opt);
   }
   els.connectorFilter.appendChild(frag);
+  els.connectorFilter.value = state.connector;
 }
 
 // --------------------------------------------------------------------------
@@ -84,6 +106,7 @@ function tokenize(q) {
 }
 
 function passesFilters(e) {
+  if (!inProduct(e, state.product)) return false;
   if (!state.types.has(e.type)) return false;
   if (!state.tiers.has(e.tier)) return false;
   if (state.connector && e.connector !== state.connector) return false;
@@ -179,7 +202,7 @@ function render() {
   // First-run / idle: no query and no filters → friendly welcome instead of
   // dumping the entire catalog at the user.
   if (state.catalog.length && !state.query.trim() && !hasActiveFilters()) {
-    els.count.textContent = `${state.catalog.length.toLocaleString()} actions & triggers — start searching`;
+    els.count.textContent = `${productCount().toLocaleString()} actions & triggers — start searching`;
     els.clearFilters.hidden = true;
     els.results.appendChild(welcomeState());
     return;
@@ -284,23 +307,49 @@ function toggleExpand(node) {
   node.setAttribute('aria-expanded', expanded ? 'true' : 'false');
 }
 
-// Example searches phrased the way a real user would describe a use case.
-const EXAMPLE_QUERIES = [
-  'send an email',
-  'when a file is created',
-  'post a message in teams',
-  'add a row to dataverse',
-  'wait for approval',
-  'create calendar event',
-  'call an http api',
-  'when a new email arrives',
-];
+// Example searches phrased the way a real user would describe a use case,
+// per product. Power Automate users think in flow steps; Copilot Studio users
+// think in agent building blocks (nodes, triggers, knowledge, tools).
+const EXAMPLE_QUERIES = {
+  'Power Automate': [
+    'send an email',
+    'when a file is created',
+    'post a message in teams',
+    'add a row to dataverse',
+    'wait for approval',
+    'create calendar event',
+    'call an http api',
+    'when a new email arrives',
+  ],
+  'Copilot Studio': [
+    'ask the user a question',
+    'show a message',
+    'add a condition',
+    'generative answers from knowledge',
+    'transfer to a human agent',
+    'call a flow',
+    'when a message is received',
+    'add a prompt',
+  ],
+};
 
-// Connectors to surface as quick browse chips (only those present in the catalog).
-const SUGGESTED_CONNECTORS = [
-  'SharePoint', 'Office 365 Outlook', 'Microsoft Teams',
-  'Microsoft Dataverse', 'HTTP',
-];
+// Connectors to surface as quick browse chips (only those present in the
+// catalog for the active product).
+const SUGGESTED_CONNECTORS = {
+  'Power Automate': [
+    'SharePoint', 'Office 365 Outlook', 'Microsoft Teams',
+    'Microsoft Dataverse', 'HTTP',
+  ],
+  'Copilot Studio': [
+    'Microsoft Copilot Studio', 'SharePoint', 'Microsoft Dataverse',
+    'Microsoft Teams', 'Office 365 Outlook',
+  ],
+};
+
+// How many catalog entries are available in the active product.
+function productCount() {
+  return state.catalog.reduce((n, e) => n + (inProduct(e, state.product) ? 1 : 0), 0);
+}
 
 // Fill the search box with a query and run it (used by example chips).
 function applyQuery(q) {
@@ -333,12 +382,13 @@ function welcomeState() {
   const wrap = document.createElement('div');
   wrap.className = 'welcome';
 
+  const isCopilot = state.product === 'Copilot Studio';
   const intro = document.createElement('div');
   intro.className = 'welcome-intro';
   intro.innerHTML = `
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="21" y2="21"/></svg>
-    <h3>What do you want your flow to do?</h3>
-    <p>Describe it in your own words, or pick a starting point below. ${state.catalog.length.toLocaleString()} actions &amp; triggers are searchable.</p>`;
+    <h3>${isCopilot ? 'What should your agent do?' : 'What do you want your flow to do?'}</h3>
+    <p>Describe it in your own words, or pick a starting point below. ${productCount().toLocaleString()} ${isCopilot ? 'blocks, triggers &amp; tools' : 'actions &amp; triggers'} are searchable in <strong>${state.product}</strong>.</p>`;
   wrap.appendChild(intro);
 
   const ex = document.createElement('div');
@@ -346,12 +396,12 @@ function welcomeState() {
   ex.innerHTML = '<span class="chip-label">Try a search</span>';
   const exRow = document.createElement('div');
   exRow.className = 'chip-row';
-  EXAMPLE_QUERIES.forEach((q) => exRow.appendChild(chip(q, () => applyQuery(q))));
+  (EXAMPLE_QUERIES[state.product] || []).forEach((q) => exRow.appendChild(chip(q, () => applyQuery(q))));
   ex.appendChild(exRow);
   wrap.appendChild(ex);
 
-  const present = new Set(state.catalog.map((e) => e.connector));
-  const available = SUGGESTED_CONNECTORS.filter((c) => present.has(c));
+  const present = new Set(state.catalog.filter((e) => inProduct(e, state.product)).map((e) => e.connector));
+  const available = (SUGGESTED_CONNECTORS[state.product] || []).filter((c) => present.has(c));
   if (available.length) {
     const br = document.createElement('div');
     br.className = 'chip-group';
@@ -515,6 +565,27 @@ document.querySelectorAll('[data-tier-toggle]').forEach((btn) => {
     }
     btn.classList.toggle('is-active', state.tiers.has(t));
     btn.setAttribute('aria-pressed', state.tiers.has(t) ? 'true' : 'false');
+    run();
+  });
+});
+
+// Product switch (single-select): Power Automate vs Copilot Studio.
+const PLACEHOLDERS = {
+  'Power Automate': 'Describe what your flow should do…',
+  'Copilot Studio': 'Describe what your agent should do…',
+};
+document.querySelectorAll('[data-product]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    const next = btn.dataset.product;
+    if (next === state.product) return;
+    state.product = next;
+    document.querySelectorAll('[data-product]').forEach((b) => {
+      const active = b.dataset.product === next;
+      b.classList.toggle('is-active', active);
+      b.setAttribute('aria-pressed', active ? 'true' : 'false');
+    });
+    els.search.placeholder = PLACEHOLDERS[next] || PLACEHOLDERS['Power Automate'];
+    populateConnectors(); // rebuild dropdown for the new product
     run();
   });
 });

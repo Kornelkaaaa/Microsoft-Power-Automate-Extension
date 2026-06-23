@@ -1,12 +1,15 @@
 # Flow Finder
 
-A Manifest V3 Chrome extension — a fast, searchable catalog of **Power Automate / Power
-Platform** connectors, actions, and triggers, living in a Chrome **side panel**.
+A Manifest V3 Chrome extension — a fast, searchable catalog of **Power Automate** and
+**Copilot Studio** building blocks (connectors, actions, triggers, and Copilot Studio's
+native nodes), living in a Chrome **side panel**.
 
-Power Automate users often can't build a flow because they don't know which *block*
-(connector / action / trigger) solves their use case. Flow Finder makes the entire
-connector surface **browsable and searchable** — type a use case in plain language
-(`wait until file approved`, `send message teams`) and the right operation surfaces.
+Power Automate and Copilot Studio users often can't build a flow or agent because they
+don't know which *block* (connector / action / trigger / node) solves their use case.
+Flow Finder makes the entire surface **browsable and searchable** — type a use case in
+plain language (`wait until file approved`, `ask the user a question`) and the right
+operation surfaces. A **product toggle** scopes results to either Power Automate or
+Copilot Studio.
 
 > **Unofficial.** Not affiliated with, endorsed by, or sponsored by Microsoft. Connector
 > data comes from the public open-source [microsoft/PowerPlatformConnectors][repo] repo.
@@ -18,8 +21,13 @@ connector surface **browsable and searchable** — type a use case in plain lang
 - **Local fuzzy search** over operation name, description, connector, and tags —
   typo-tolerant (Fuse.js, bundled locally) plus a token-overlap booster so keyword and
   out-of-order queries (`post message teams`) still rank correctly.
+- **Product toggle:** switch between **Power Automate** and **Copilot Studio**. Connectors
+  appear in both (Copilot Studio uses them as agent tools and in flows); Copilot Studio's
+  native building blocks — topic triggers, canvas nodes (Send a message, Ask a question,
+  Condition…), system topics, knowledge sources, and tools — appear only in Copilot Studio
+  mode.
 - **Filters:** Actions / Triggers toggles, Standard / Premium toggles, and a connector
-  dropdown.
+  dropdown (the dropdown reflects the selected product).
 - **Dense, power-user UI:** action/trigger badge, tier badge, truncated-and-expandable
   descriptions, result count, light/dark aware.
 - **Keyboard-first:** `/` focuses search, `↑`/`↓` navigate results, `Enter` expands,
@@ -45,6 +53,7 @@ flow-finder/
 ├─ scripts/
 │  ├─ build-catalog.js      # fetches + flattens connector data from GitHub
 │  ├─ curated-first-party.json  # SharePoint/Outlook/Teams/Dataverse/HTTP supplement
+│  ├─ copilot-studio-blocks.json # native Copilot Studio nodes/triggers/knowledge/tools
 │  └─ build.js              # assembles dist/
 ├─ dist/                    # loadable unpacked extension (build output)
 └─ package.json
@@ -103,6 +112,15 @@ which is the authoritative rendered docs for every connector. It writes
 connectors to pull (and add new ones) in `scripts/firstparty-connectors.json`; built-ins
 with no docs page (HTTP, Request) live in `scripts/firstparty-extras.json`.
 
+**3. Copilot Studio native blocks — `scripts/copilot-studio-blocks.json`**
+Copilot Studio's own building blocks aren't connectors and live in neither source above, so
+they're a small hand-maintained file curated from the public
+[Copilot Studio docs](https://learn.microsoft.com/microsoft-copilot-studio/): authoring-canvas
+nodes (Send a message, Ask a question, Condition…), topic triggers, system topics, knowledge
+sources, and tools. `build-catalog.js` merges it (skip with `--no-copilot`), tags each entry
+`products: ["Copilot Studio"]`, and turns each `docSlug` into a docs `docUrl`. Add a block by
+appending an object; keep `type` to `action` or `trigger`.
+
 ```bash
 npm run build:all          # firstparty + catalog + dist, the full refresh
 
@@ -116,6 +134,7 @@ npm run build              # assemble dist/
 node scripts/build-catalog.js --limit 200          # cap per folder
 node scripts/build-catalog.js --no-independent     # certified connectors only
 node scripts/build-catalog.js --no-curated         # skip the first-party merge
+node scripts/build-catalog.js --no-copilot         # skip the Copilot Studio native blocks
 node scripts/build-firstparty.js --keep-deprecated # include deprecated/MCP-server ops
 ```
 
@@ -141,6 +160,7 @@ node scripts/build-firstparty.js --keep-deprecated # include deprecated/MCP-serv
   "description": "Triggers a flow when a new item is created in a SharePoint list.",
   "inputs": ["Site Address*", "List Name*"], // operation parameters; "*" = required
   "docUrl": "https://learn.microsoft.com/en-us/connectors/sharepointonline/#when-an-item-is-created",
+  "products": ["Power Automate", "Copilot Studio"], // where the block is usable
   "tags": ["sharepoint", "item", "created", "list", "new", "trigger"]
 }
 ```
@@ -151,7 +171,15 @@ node scripts/build-firstparty.js --keep-deprecated # include deprecated/MCP-serv
   Microsoft Learn. The side panel renders these as pills when a card is expanded.
 - **`docUrl`** deep-links to the operation's documentation — the Microsoft Learn
   connector reference anchor for first-party connectors, the GitHub connector folder
-  for third-party ones. Shown as a "View docs" link on each card.
+  for third-party ones, and the Copilot Studio docs page for native blocks. Shown as a
+  "View docs" link on each card.
+- **`products`** is the list of products a block is usable in. Connectors and flow
+  operations are `["Power Automate", "Copilot Studio"]` (Copilot Studio can call any
+  connector as an agent tool or inside a flow). Copilot Studio's **native** building
+  blocks — nodes, topic triggers, system topics, knowledge sources, tools — are
+  `["Copilot Studio"]`. The product toggle filters on this field; entries missing it are
+  treated as Power Automate. The build assigns it automatically (see
+  `copilot-studio-blocks.json` below).
 
 ### Notes on the data
 

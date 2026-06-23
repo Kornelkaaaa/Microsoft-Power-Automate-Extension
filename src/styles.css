@@ -129,6 +129,11 @@ body {
 }
 #search:focus + .search-hint { display: none; }
 
+/* ---------- Product switch ---------- */
+.seg-product { width: 100%; }
+.seg-product .seg-btn { flex: 1 1 0; text-align: center; font-weight: 550; }
+.seg-product .seg-btn.is-active { color: var(--accent); }
+
 /* ---------- Filters ---------- */
 .filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
 .seg {
